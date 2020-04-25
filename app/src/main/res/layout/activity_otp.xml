@@ -70,7 +70,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimaryDark"
         android:drawableLeft="@android:drawable/ic_menu_send"
         android:text="@string/OTPVerify"
         android:textColor="@color/common_google_signin_btn_text_dark_default"

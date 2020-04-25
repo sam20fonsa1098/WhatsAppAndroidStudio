@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private FirebaseUser mCurrentUser;
 
     private EditText mCountryCode;
     private EditText mPhoneNumber;
@@ -44,7 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth        = FirebaseAuth.getInstance();
-        mCurrentUser = mAuth.getCurrentUser();
 
         mCountryCode = findViewById(R.id.country_code_text);
         mPhoneNumber = findViewById(R.id.phone_number_text);
@@ -99,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Intent otpIntent = new Intent(LoginActivity.this, OtpActivity.class);
                                 otpIntent.putExtra("AuthCredentials", s);
                                 startActivity(otpIntent);
+                                finish();
                             }
                         },
                         10000);
@@ -108,21 +107,5 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         };
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(mCurrentUser != null){
-            sendUserToHome();
-        }
-    }
-
-    private void sendUserToHome() {
-        Intent homeIntent = new Intent(LoginActivity.this, MainActivity.class);
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(homeIntent);
-        finish();
     }
 }
