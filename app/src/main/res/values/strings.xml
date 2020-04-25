@@ -11,4 +11,10 @@
     <string name="OTPDescription">We have sent you an OTP for \n phone number verification</string>
     <string name="OTPVerify">Verify OTP</string>
     <string name="OTPGenerate">Generate OTP</string>
+
+    <string name="LoginHintNumber">Your number</string>
+    <string name="OtpHintNumber">Your OTP code</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
