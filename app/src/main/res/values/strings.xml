@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Whatsapp</string>
+
+    <string name="Verify">Verify your Number</string>
+    <string name="VerifyDescription">Please enter your Country Code and \n Phone number for verification</string>
+
+    <string name="OTP">Enter OTP</string>
+    <string name="OTPDescription">We have sent you an OTP for \n phone number verification</string>
+    <string name="OTPVerify">Verify OTP</string>
+</resources>
