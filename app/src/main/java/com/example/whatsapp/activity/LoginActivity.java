@@ -93,6 +93,8 @@ public class LoginActivity extends AppCompatActivity {
                             public void run() {
                                 Intent otpIntent = new Intent(LoginActivity.this, OtpActivity.class);
                                 otpIntent.putExtra("AuthCredentials", s);
+                                otpIntent.putExtra("PhoneNumber", mPhoneNumber.getText().toString());
+                                otpIntent.putExtra("CountryCode", mCountryCode.getText().toString());
                                 startActivity(otpIntent);
                                 finish();
                             }

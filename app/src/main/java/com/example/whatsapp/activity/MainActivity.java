@@ -100,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendUserToLogin() {
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
         finish();
     }
@@ -120,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menuOut:
                 signOutUser();
                 break;
+            case R.id.menuConfig:
+                openSettings();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -133,5 +134,10 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e){
             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void openSettings() {
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intent);
     }
 }

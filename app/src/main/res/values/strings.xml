@@ -17,4 +17,13 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="defaulName">User name</string>
+    <string name="defaultSettingName">This is not your username or pin. This name will \n be visible to your WhatsApp contacts.</string>
+    <string name="defaulStatus">About</string>
+
+    <string name="dataName">Your name</string>
+    <string name="dataButton">Confirm</string>
+    <string name="dataTextView">Please write your Username</string>
+
 </resources>

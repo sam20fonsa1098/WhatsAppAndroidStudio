@@ -26,9 +26,10 @@ import com.google.firebase.auth.PhoneAuthProvider;
 public class OtpActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private FirebaseUser mCurrentUser;
 
     private String mAuthVerificationId;
+    private String mPhoneNumber;
+    private String mCountryCode;
 
     private EditText mOtpText;
     private Button mVerifyBtn;
@@ -42,9 +43,10 @@ public class OtpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_otp);
 
         mAuth = ConfigFirebase.getFirebaseAuth();
-        mCurrentUser = mAuth.getCurrentUser();
 
         mAuthVerificationId = getIntent().getStringExtra("AuthCredentials");
+        mPhoneNumber        = getIntent().getStringExtra("PhoneNumber");
+        mCountryCode        = getIntent().getStringExtra("CountryCode");
 
         mOtpProgress = findViewById(R.id.otp_progress_bar);
         mOtpText = findViewById(R.id.otp_text_view);
@@ -77,8 +79,7 @@ public class OtpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            sendUserToHome();
-                            // ...
+                            sendUserToGetData();
                         } else {
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
@@ -91,18 +92,10 @@ public class OtpActivity extends AppCompatActivity {
                 });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(mCurrentUser != null){
-            sendUserToHome();
-        }
-    }
-
-    public void sendUserToHome() {
-        Intent homeIntent = new Intent(OtpActivity.this, MainActivity.class);
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    public void sendUserToGetData() {
+        Intent homeIntent = new Intent(OtpActivity.this, GetDataUserActivity.class);
+        homeIntent.putExtra("PhoneNumber", mPhoneNumber);
+        homeIntent.putExtra("CountryCode", mCountryCode);
         startActivity(homeIntent);
         finish();
     }
