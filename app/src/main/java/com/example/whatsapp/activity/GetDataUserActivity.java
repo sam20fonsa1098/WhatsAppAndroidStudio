@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.whatsapp.R;
 import com.example.whatsapp.helper.Base64Custom;
+import com.example.whatsapp.helper.CurrentUserFirebase;
 import com.example.whatsapp.model.User;
 
 public class GetDataUserActivity extends AppCompatActivity {
@@ -38,12 +39,14 @@ public class GetDataUserActivity extends AppCompatActivity {
                 String name = mUsername.getText().toString();
                 if(!name.isEmpty()) {
                     try{
-                        String id = Base64Custom.encodeBase64(mPhoneNumber);
+                        String id = Base64Custom.encodeBase64(mCountryCode + mPhoneNumber);
                         User user = new User();
                         user.setName(mUsername.getText().toString());
                         user.setPhoneNumber(mCountryCode + mPhoneNumber);
                         user.setUserId(id);
+                        user.setStatus(getString(R.string.defaulStatus));
                         user.save();
+                        CurrentUserFirebase.updateName(user.getName());
                         Toast.makeText(GetDataUserActivity.this, "User saved successfully", Toast.LENGTH_SHORT).show();
                         sendUserToHome();
                     }

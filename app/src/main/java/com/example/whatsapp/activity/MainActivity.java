@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewPageTab.setViewPager(viewPager);
 
-        mAuth = ConfigFirebase.getFirebaseAuth();
+        mAuth        = ConfigFirebase.getFirebaseAuth();
         mCurrentUser = mAuth.getCurrentUser();
     }
 
