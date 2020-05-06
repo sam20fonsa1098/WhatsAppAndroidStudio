@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        viewPager.setCurrentItem(1);
         viewPageTab.setViewPager(viewPager);
 
         mAuth        = ConfigFirebase.getFirebaseAuth();

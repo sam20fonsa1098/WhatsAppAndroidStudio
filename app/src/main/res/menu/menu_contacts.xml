@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menuContactSearch"
+        android:title="Search"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_search_white_24dp">
+    </item>
+    <item android:id="@+id/menuContactInvite"
+        android:title="Invite a friend"
+        app:showAsAction="never">
+    </item>
+
+    <item android:id="@+id/menuContactListContacts"
+        android:title="Contacts"
+        app:showAsAction="never">
+    </item>
+
+    <item android:id="@+id/menuContactRefresh"
+        android:title="Refresh"
+        app:showAsAction="never">
+    </item>
+
+    <item android:id="@+id/menuContactHelp"
+        android:title="Help"
+        app:showAsAction="never">
+    </item>
+</menu>
