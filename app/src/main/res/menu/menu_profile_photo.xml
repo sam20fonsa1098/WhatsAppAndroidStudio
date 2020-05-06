@@ -4,7 +4,7 @@
     <item android:id="@+id/menuChangeCamera"
         android:title="Change"
         app:showAsAction="always"
-        android:icon="@drawable/ic_photo_camera_gray_24dp">
+        android:icon="@drawable/ic_camera_alt_white_24dp">
     </item>
     <item android:id="@+id/menuChangeGalery"
         android:title="Change"
