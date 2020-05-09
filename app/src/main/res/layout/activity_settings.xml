@@ -59,7 +59,8 @@
             android:ems="10"
             android:hint="@string/defaulName"
             android:inputType="textPersonName"
-            android:text="" />
+            android:text=""
+            android:background="@android:color/transparent"/>
 
         <ImageView
             android:id="@+id/imageViewChangeName"
@@ -122,7 +123,8 @@
             android:ems="10"
             android:inputType="textPersonName"
             android:hint="@string/defaultStatusHint"
-            android:text="" />
+            android:text=""
+            android:background="@android:color/transparent"/>
 
         <ImageView
             android:id="@+id/imageViewChangeStatus"
@@ -176,7 +178,8 @@
             android:focusable="false"
             android:hint="@string/defaultPhone"
             android:inputType="textPersonName"
-            android:text="" />
+            android:text=""
+            android:background="@android:color/transparent"/>
 
         <ImageView
             android:id="@+id/imageView8"

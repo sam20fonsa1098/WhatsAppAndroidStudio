@@ -139,8 +139,6 @@ public class PerfilPhotoActivity extends AppCompatActivity {
                     uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(PerfilPhotoActivity.this, "Success to upload the image", Toast.LENGTH_SHORT).show();
-
                             Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
                             while(!uri.isComplete());
                             Uri url = uri.getResult();
