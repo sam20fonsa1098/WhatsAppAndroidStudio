@@ -40,6 +40,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
         User user = contacts.get(position);
         holder.name.setText(user.getName());
         holder.status.setText(user.getStatus());
+        holder.hours.setVisibility(View.GONE);
+        holder.status.setCompoundDrawables(null, null, null, null);
         if(user.getPhoto() != null) {
             Uri uri = Uri.parse(user.getPhoto());
             Glide.with(context).load(uri).into(holder.photo);
@@ -56,13 +58,14 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         CircleImageView photo;
-        TextView name, status;
+        TextView name, status, hours;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             photo  = itemView.findViewById(R.id.imageViewPhotoContact);
             name   = itemView.findViewById(R.id.textViewNameContact);
             status = itemView.findViewById(R.id.textViewStatusContact);
+            hours  = itemView.findViewById(R.id.textViewHours);
         }
     }
 }

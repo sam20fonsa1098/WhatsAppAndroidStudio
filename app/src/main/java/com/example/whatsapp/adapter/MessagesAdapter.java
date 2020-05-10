@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.whatsapp.R;
 import com.example.whatsapp.helper.CurrentUserFirebase;
+import com.example.whatsapp.helper.DateUtil;
 import com.example.whatsapp.model.Message;
 
 import java.util.List;
@@ -46,6 +47,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Message message  = listMessages.get(position);
+        holder.date.setVisibility(View.VISIBLE);
+        holder.date.setText(setData(message.getHour()));
+
         if(message.getImage() != null) {
             Uri url = Uri.parse(message.getImage());
             Glide.with(context).load(url).into(holder.image);
@@ -55,6 +59,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
             holder.message.setText(message.getMessage());
             holder.image.setVisibility(View.GONE);
         }
+
+
     }
 
     @Override
@@ -74,13 +80,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView message;
+        TextView message, date;
         ImageView image;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             message = itemView.findViewById(R.id.textViewMessageText);
             image   = itemView.findViewById(R.id.imageViewMessagePhoto);
+            date    = itemView.findViewById(R.id.textViewMessageTextHour);
         }
+    }
+
+    private String setData(String date) {
+        String arrayDate[] = date.split(" ");
+        String aux[]       = arrayDate[1].split(":");
+        return aux[0] + ":" + aux[1];
     }
 }

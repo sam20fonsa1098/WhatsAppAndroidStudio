@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.whatsapp.R;
 import com.example.whatsapp.adapter.ContactsAdapter;

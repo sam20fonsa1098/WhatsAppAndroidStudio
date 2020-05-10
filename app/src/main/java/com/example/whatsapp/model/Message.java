@@ -8,6 +8,7 @@ public class Message {
     private String idUser;
     private String message;
     private String image;
+    private String hour;
 
     public Message() {
     }
@@ -21,13 +22,22 @@ public class Message {
         message.push().setValue(this);
     }
 
-    public void arrive(String userArrivId, String currentId) {
+
+    public void arrive(String userArrivId) {
         DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
         DatabaseReference message           = databaseReference
                 .child("Messages")
                 .child(userArrivId)
-                .child(currentId);
+                .child(this.idUser);
         message.push().setValue(this);
+    }
+
+    public String getHour() {
+        return hour;
+    }
+
+    public void setHour(String hour) {
+        this.hour = hour;
     }
 
     public String getIdUser() {

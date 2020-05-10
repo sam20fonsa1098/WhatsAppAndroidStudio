@@ -10,6 +10,8 @@ import com.example.whatsapp.adapter.MessagesAdapter;
 import com.example.whatsapp.config.ConfigFirebase;
 import com.example.whatsapp.helper.Base64Custom;
 import com.example.whatsapp.helper.CurrentUserFirebase;
+import com.example.whatsapp.helper.DateUtil;
+import com.example.whatsapp.model.Chat;
 import com.example.whatsapp.model.Message;
 import com.example.whatsapp.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -25,7 +27,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +51,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,9 +70,10 @@ public class ChatActivity extends AppCompatActivity {
     private MessagesAdapter messagesAdapter;
     private List<Message> listMessages = new ArrayList<>();
     private DatabaseReference databaseReferenceMessages;
-    private ChildEventListener childEventListener;
+    private ValueEventListener valueEventListener;
     private static final int SELECTION_CAMERA = 100;
     private StorageReference storageReference;
+    private List<String> aux = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,14 +149,14 @@ public class ChatActivity extends AppCompatActivity {
         String idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
         if(!message.isEmpty()) {
             Message msg = new Message();
-
+            msg.setHour(DateUtil.currentDate());
             msg.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
             msg.setMessage(message);
-
             msg.save(idClicked);
-            msg.setIdUser(idClicked);
-            msg.arrive(idClicked, Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
+            msg.arrive(idClicked);
             editTextSend.setText("");
+            //Saving a chat
+            saveChat(msg);
         }
         else {
             Toast.makeText(this, "Please write your message", Toast.LENGTH_SHORT).show();
@@ -158,27 +164,17 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void takeMessages() {
-        childEventListener = databaseReferenceMessages.addChildEventListener(new ChildEventListener() {
+        valueEventListener = databaseReferenceMessages.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Message message = dataSnapshot.getValue(Message.class);
-                listMessages.add(message);
-                messagesAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot data: dataSnapshot.getChildren()) {
+                    if(!aux.contains(data.getKey())) {
+                        aux.add(data.getKey());
+                        Message message = data.getValue(Message.class);
+                        listMessages.add(message);
+                        messagesAdapter.notifyDataSetChanged();
+                    }
+                }
             }
 
             @Override
@@ -198,7 +194,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        databaseReferenceMessages.removeEventListener(childEventListener);
+        databaseReferenceMessages.removeEventListener(valueEventListener);
     }
 
     @Override
@@ -215,7 +211,7 @@ public class ChatActivity extends AppCompatActivity {
                         break;
                 }
                 if (image != null) {
-                    String id = CurrentUserFirebase.getIdCurrentUser();
+                    String id = Base64Custom.encodeBase64(currentUser.getPhoneNumber());
                     //Take data to firebase
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG, 70, baos);
@@ -241,18 +237,17 @@ public class ChatActivity extends AppCompatActivity {
                     uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(ChatActivity.this, "Success to upload the image", Toast.LENGTH_SHORT).show();
-
                             Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
                             while(!uri.isComplete());
                             Uri url = uri.getResult();
+                            String idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
                             Message message = new Message();
-                            message.setIdUser(CurrentUserFirebase.getIdCurrentUser());
+                            message.setHour(DateUtil.currentDate());
+                            message.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
                             message.setImage(url.toString());
-
-                            message.save(userClicked.getUserId());
-                            message.setIdUser(userClicked.getUserId());
-                            message.arrive(userClicked.getUserId(), CurrentUserFirebase.getIdCurrentUser());
+                            message.save(idClicked);
+                            message.arrive(idClicked);
+                            saveChat(message);
                         }
                     });
                 }
@@ -261,5 +256,15 @@ public class ChatActivity extends AppCompatActivity {
                     e.printStackTrace();
             }
         }
+    }
+
+    private void saveChat(Message message) {
+        Chat chatSend = new Chat();
+        chatSend.setDate(message.getHour());
+        chatSend.setIdSend(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
+        chatSend.setIdArrived(Base64Custom.encodeBase64(userClicked.getPhoneNumber()));
+        chatSend.setLastMessage(message.getMessage());
+        chatSend.setUser(userClicked);
+        chatSend.save();
     }
 }
