@@ -12,4 +12,11 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/Toolbar"
         android:elevation="0dp"/>
+
+    <com.miguelcatalan.materialsearchview.MaterialSearchView
+        android:id="@+id/materialSearchMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.miguelcatalan.materialsearchview.MaterialSearchView>
+
 </FrameLayout>

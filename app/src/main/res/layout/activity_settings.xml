@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray"
+    android:background="@color/grayWhite"
     tools:context=".activity.SettingsActivity">
 
     <include
@@ -19,7 +19,7 @@
         android:layout_width="160dp"
         android:layout_height="160dp"
         android:layout_marginTop="32dp"
-        android:background="@color/gray"
+        android:background="@color/grayWhite"
         android:longClickable="false"
         android:onClick="sendToProfilePhoto"
         android:src="@drawable/padrao"
@@ -33,7 +33,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@color/gray"
+        android:background="@color/grayWhite"
         android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingTop="0dp"
@@ -56,11 +56,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@android:color/transparent"
             android:ems="10"
             android:hint="@string/defaulName"
             android:inputType="textPersonName"
-            android:text=""
-            android:background="@android:color/transparent"/>
+            android:text="" />
 
         <ImageView
             android:id="@+id/imageViewChangeName"
@@ -120,11 +120,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@android:color/transparent"
             android:ems="10"
-            android:inputType="textPersonName"
             android:hint="@string/defaultStatusHint"
-            android:text=""
-            android:background="@android:color/transparent"/>
+            android:inputType="textPersonName"
+            android:text="" />
 
         <ImageView
             android:id="@+id/imageViewChangeStatus"
@@ -174,12 +174,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@android:color/transparent"
             android:ems="10"
             android:focusable="false"
             android:hint="@string/defaultPhone"
             android:inputType="textPersonName"
-            android:text=""
-            android:background="@android:color/transparent"/>
+            android:text="" />
 
         <ImageView
             android:id="@+id/imageView8"

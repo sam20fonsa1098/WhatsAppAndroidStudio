@@ -17,14 +17,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".activity.NewGroupActivity"
+            android:label="NewGroupActivity"
+            android:parentActivityName=".activity.MainActivity"
+            ></activity>
+        <activity
             android:name=".activity.ChatActivity"
             android:label="@string/title_activity_chat"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".activity.MainActivity">
-        </activity>
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".activity.ContactsActivity"
-            android:parentActivityName=".activity.MainActivity"></activity>
+            android:parentActivityName=".activity.MainActivity" />
         <activity
             android:name=".activity.PerfilPhotoActivity"
             android:parentActivityName=".activity.SettingsActivity"

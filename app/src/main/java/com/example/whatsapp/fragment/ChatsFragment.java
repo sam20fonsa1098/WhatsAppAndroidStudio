@@ -169,4 +169,26 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
         intent.putExtra("UserClicked", user);
         startActivity(intent);
     }
+
+    public void searchChats (String text) {
+        List<Chat> chatListSearch = new ArrayList<>();
+        for(Chat chat: chatList) {
+            String name        = chat.getUser().getName().toLowerCase();
+            String lastMessage = chat.getLastMessage();
+            if(lastMessage == null) {
+                if(name.contains(text)) {
+                    chatListSearch.add(chat);
+                }
+            }
+            else {
+                if(name.contains(text) || lastMessage.contains(text)) {
+                    chatListSearch.add(chat);
+                }
+            }
+
+        }
+        chatsAdapter = new ChatsAdapter(chatListSearch, getActivity());
+        recyclerView.setAdapter(chatsAdapter);
+        chatsAdapter.notifyDataSetChanged();
+    }
 }

@@ -37,7 +37,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        User user = contacts.get(position);
+        User user       = contacts.get(position);
+        boolean isGroup = user.getName().equals("New Group");
         holder.name.setText(user.getName());
         holder.status.setText(user.getStatus());
         holder.hours.setVisibility(View.GONE);
@@ -46,7 +47,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
             Uri uri = Uri.parse(user.getPhoto());
             Glide.with(context).load(uri).into(holder.photo);
         }else {
-            holder.photo.setImageResource(R.drawable.padrao);
+            if(isGroup) {
+                holder.photo.setImageResource(R.drawable.icone_grupo);
+                holder.status.setVisibility(View.GONE);
+            }
+            else{
+                holder.photo.setImageResource(R.drawable.padrao);
+            }
         }
     }
 

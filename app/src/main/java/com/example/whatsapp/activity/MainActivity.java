@@ -29,6 +29,7 @@ import com.example.whatsapp.fragment.ChatsFragment;
 import com.example.whatsapp.fragment.StatusFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseUser mCurrentUser;
+    private MaterialSearchView materialSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +49,10 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle("WhatsApp");
         setSupportActionBar(toolbar);
 
-        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
+        mAuth                                  = ConfigFirebase.getFirebaseAuth();
+        mCurrentUser                           = mAuth.getCurrentUser();
+        materialSearchView                     = findViewById(R.id.materialSearchMain);
+        final FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(),
                 FragmentPagerItems.with(this)
                 .add("CAMERA", CameraFragment.class)
@@ -86,8 +91,35 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setCurrentItem(1);
         viewPageTab.setViewPager(viewPager);
 
-        mAuth        = ConfigFirebase.getFirebaseAuth();
-        mCurrentUser = mAuth.getCurrentUser();
+        materialSearchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                ChatsFragment fragment = (ChatsFragment) adapter.getPage(1);
+                fragment.searchChats("");
+            }
+        });
+
+        materialSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                ChatsFragment fragment = (ChatsFragment) adapter.getPage(1);
+                fragment.searchChats(newText.toLowerCase());
+                return true;
+            }
+        });
+
+
     }
 
     @Override
@@ -108,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
+
+        MenuItem item = menu.findItem(R.id.menuSearch);
+        materialSearchView.setMenuItem(item);
         return super.onCreateOptionsMenu(menu);
     }
 

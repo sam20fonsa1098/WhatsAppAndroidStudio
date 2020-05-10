@@ -19,17 +19,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.whatsapp.R;
+import com.example.whatsapp.adapter.ChatsAdapter;
 import com.example.whatsapp.adapter.ContactsAdapter;
 import com.example.whatsapp.config.ConfigFirebase;
 import com.example.whatsapp.helper.CurrentUserFirebase;
 import com.example.whatsapp.helper.RecyclerItemClickListener;
+import com.example.whatsapp.model.Chat;
 import com.example.whatsapp.model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ContactsActivity extends AppCompatActivity {
 
@@ -40,6 +44,7 @@ public class ContactsActivity extends AppCompatActivity {
     private ValueEventListener valueEventListener;
     private ProgressBar progressBarContact;
     private User currentUser;
+    private MaterialSearchView materialSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +57,7 @@ public class ContactsActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        materialSearchView   = findViewById(R.id.materialSearchMain);
         recyclerViewContacts = findViewById(R.id.recyclerViewContacts);
         contactsAdapter      = new ContactsAdapter(contactLists, getApplicationContext());
         usersRef             = ConfigFirebase.getDatabaseReference().child("Users");
@@ -72,8 +78,13 @@ public class ContactsActivity extends AppCompatActivity {
                 new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        User user = contactLists.get(position);
-                        openChat(user);
+                        User user       = contactLists.get(position);
+                        if(!user.getName().equals("New Group")) {
+                            openChat(user);
+                        }
+                        else{
+                            openNewGroup();
+                        }
                     }
 
                     @Override
@@ -87,12 +98,42 @@ public class ContactsActivity extends AppCompatActivity {
                     }
         }
         ));
+
+        materialSearchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                searchContacts("");
+            }
+        });
+
+        materialSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchContacts(newText.toLowerCase());
+                return true;
+            }
+        });
+
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_contacts, menu);
+
+        MenuItem item = menu.findItem(R.id.menuContactSearch);
+        materialSearchView.setMenuItem(item);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -150,13 +191,39 @@ public class ContactsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if(contactLists.size() == 0 ){
+            User userGroup = new User();
+            userGroup.setName("New Group");
+            userGroup.setStatus("");
+            userGroup.setPhoneNumber("");
+            contactLists.add(userGroup);
             takeContacts();
         }
+    }
+
+    public void openNewGroup() {
+        Intent intent = new Intent(ContactsActivity.this, NewGroupActivity.class);
+        intent.putExtra("sizeContacts", Integer.toString(contactLists.size() - 1));
+        startActivity(intent);
     }
 
     public void openChat(User user) {
         Intent intent = new Intent(ContactsActivity.this, ChatActivity.class);
         intent.putExtra("UserClicked", user);
         startActivity(intent);
+    }
+
+    public void searchContacts (String text) {
+        List<User> chatListContacts = new ArrayList<>();
+        for(User user: contactLists) {
+            String name   = user.getName().toLowerCase();
+            String status = user.getStatus().toLowerCase();
+            if(name.contains(text) || status.contains(text)) {
+                chatListContacts.add(user);
+            }
+
+        }
+        contactsAdapter = new ContactsAdapter(chatListContacts, getApplicationContext());
+        recyclerViewContacts.setAdapter(contactsAdapter);
+        contactsAdapter.notifyDataSetChanged();
     }
 }
