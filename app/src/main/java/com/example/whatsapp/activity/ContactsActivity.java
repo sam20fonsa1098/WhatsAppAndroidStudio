@@ -202,7 +202,6 @@ public class ContactsActivity extends AppCompatActivity {
 
     public void openNewGroup() {
         Intent intent = new Intent(ContactsActivity.this, NewGroupActivity.class);
-        intent.putExtra("sizeContacts", Integer.toString(contactLists.size() - 1));
         startActivity(intent);
     }
 

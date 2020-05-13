@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
+import android.widget.ProgressBar;
 
 import com.example.whatsapp.R;
 import com.example.whatsapp.activity.ChatActivity;
@@ -54,6 +55,7 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
     private FirebaseUser firebaseUser;
     private ValueEventListener valueEventListener;
     private List<String> aux = new ArrayList<>();
+    private ProgressBar progressBar;
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -66,6 +68,7 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_chats, container, false);
 
+        progressBar       = view.findViewById(R.id.progressBarFragmentChat);
         recyclerView      = view.findViewById(R.id.recyclerViewListChats);
         firebaseUser      = CurrentUserFirebase.getCurrentUser();
         chatsRef          = ConfigFirebase.getDatabaseReference()
@@ -87,7 +90,14 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
                     @Override
                     public void onItemClick(View view, int position) {
                         Chat chat = chatList.get(position);
-                        openChat(chat.getUser());
+                        if(chat.getIsGroup()) {
+                            Intent intent = new Intent(getActivity(), ChatActivity.class);
+                            intent.putExtra("GroupClicked", chat.getGroup());
+                            startActivity(intent);
+                        }
+                        else{
+                            openChat(chat.getUser());
+                        }
                     }
 
                     @Override
@@ -131,6 +141,7 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
     }
 
     public void takeChats() {
+        progressBar.setVisibility(View.VISIBLE);
         valueEventListener = chatsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -142,6 +153,7 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
                         chatsAdapter.notifyDataSetChanged();
                     }
                 }
+                progressBar.setVisibility(View.INVISIBLE);
 
             }
 

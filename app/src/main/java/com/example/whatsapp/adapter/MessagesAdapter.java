@@ -92,8 +92,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     }
 
     private String setData(String date) {
-        String arrayDate[] = date.split(" ");
-        String aux[]       = arrayDate[1].split(":");
-        return aux[0] + ":" + aux[1];
+        String currentdDate       = DateUtil.currentDate();
+        String arrayDate[]        = date.split(" ");
+        String arrayCurrentDate[] = currentdDate.split(" ");
+        if(arrayDate[0].equals(arrayCurrentDate[0])) {
+            String aux[] = arrayDate[1].split(":");
+            return aux[0] + ":" + aux[1];
+        }
+        return arrayDate[0];
     }
 }

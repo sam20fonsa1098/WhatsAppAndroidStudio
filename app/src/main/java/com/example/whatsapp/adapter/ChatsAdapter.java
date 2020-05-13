@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.example.whatsapp.R;
 import com.example.whatsapp.helper.DateUtil;
 import com.example.whatsapp.model.Chat;
+import com.example.whatsapp.model.Group;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,22 +41,40 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.MyViewHolder
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Chat chat = chatList.get(position);
-        holder.name.setText(chat.getUser().getName());
-        if(chat.getLastMessage() == null) {
-            holder.lastMessage.setText("Photo");
-        }
-        else{
-            holder.lastMessage.setText(chat.getLastMessage());
+
+        if(chat.getIsGroup()) {
+            Group group = chat.getGroup();
+            holder.name.setText(group.getName());
+            if(group.getPhoto() != null) {
+                Uri uri = Uri.parse(group.getPhoto());
+                Glide.with(context).load(uri).into(holder.circleImageView);
+            }
+            else{
+                holder.circleImageView.setImageResource(R.drawable.padrao);
+            }
+            holder.lastMessage.setText("");
+            holder.date.setText("");
             holder.lastMessage.setCompoundDrawables(null, null, null, null);
-        }
-        if(chat.getUser().getPhoto() != null) {
-            Uri uri = Uri.parse(chat.getUser().getPhoto());
-            Glide.with(context).load(uri).into(holder.circleImageView);
+
         }
         else{
-            holder.circleImageView.setImageResource(R.drawable.padrao);
+            holder.name.setText(chat.getUser().getName());
+            if(chat.getLastMessage() == null) {
+                holder.lastMessage.setText("Photo");
+            }
+            else{
+                holder.lastMessage.setText(chat.getLastMessage());
+                holder.lastMessage.setCompoundDrawables(null, null, null, null);
+            }
+            if(chat.getUser().getPhoto() != null) {
+                Uri uri = Uri.parse(chat.getUser().getPhoto());
+                Glide.with(context).load(uri).into(holder.circleImageView);
+            }
+            else{
+                holder.circleImageView.setImageResource(R.drawable.padrao);
+            }
+            holder.date.setText(setData(chat.getDate()));
         }
-        holder.date.setText(setData(chat.getDate()));
     }
 
     @Override

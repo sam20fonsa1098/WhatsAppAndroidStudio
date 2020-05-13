@@ -156,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menuConfig:
                 openSettings();
                 break;
+            case R.id.menuNewGroup:
+                openNewGroup();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -173,6 +176,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void openSettings() {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    public void openNewGroup() {
+        Intent intent = new Intent(MainActivity.this, NewGroupActivity.class);
         startActivity(intent);
     }
 }

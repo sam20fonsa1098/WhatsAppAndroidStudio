@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.whatsapp">
+    package="com.example.whatsapp" >
 
     <uses-feature
         android:name="android.hardware.camera2"
@@ -15,17 +15,20 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".activity.RegisterNewGroupActivity"
+            android:parentActivityName=".activity.NewGroupActivity">
+        </activity>
         <activity
             android:name=".activity.NewGroupActivity"
             android:label="NewGroupActivity"
-            android:parentActivityName=".activity.MainActivity"
-            ></activity>
+            android:parentActivityName=".activity.MainActivity" />
         <activity
             android:name=".activity.ChatActivity"
             android:label="@string/title_activity_chat"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.ContactsActivity"
             android:parentActivityName=".activity.MainActivity" />
@@ -45,7 +48,7 @@
         <activity
             android:name=".activity.LoginActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

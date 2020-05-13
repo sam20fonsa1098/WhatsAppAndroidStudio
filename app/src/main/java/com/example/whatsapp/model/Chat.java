@@ -9,9 +9,11 @@ public class Chat {
     private String lastMessage;
     private User user;
     private String date;
+    private boolean isGroup;
+    private Group group;
 
     public Chat() {
-
+        this.setIsGroup(false);
     }
 
     public void save() {
@@ -20,6 +22,22 @@ public class Chat {
         chatRef.child(this.getIdSend())
                .child(this.getIdArrived())
                .setValue(this);
+    }
+
+    public boolean getIsGroup() {
+        return isGroup;
+    }
+
+    public void setIsGroup(boolean isGroup) {
+        this.isGroup = isGroup;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public String getDate() {

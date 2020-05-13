@@ -6,43 +6,43 @@
     android:layout_height="match_parent"
     tools:context=".activity.NewGroupActivity">
 
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Toolbar"
-        android:elevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include
+        android:id="@+id/include4"
+        layout="@layout/toolbar" />
 
     <LinearLayout
-        android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarGroup">
+        app:layout_constraintTop_toBottomOf="@+id/include4">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewNewGroupSelected"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal">
 
         </androidx.recyclerview.widget.RecyclerView>
+
+        <ImageView
+            android:id="@+id/dividerNewGroup"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:background="?android:attr/listDivider">
+        </ImageView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewNewGroupContacts"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"/>
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/floatingActionButtonNewGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"

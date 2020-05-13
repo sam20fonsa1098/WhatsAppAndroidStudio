@@ -12,13 +12,13 @@ import com.example.whatsapp.helper.Base64Custom;
 import com.example.whatsapp.helper.CurrentUserFirebase;
 import com.example.whatsapp.helper.DateUtil;
 import com.example.whatsapp.model.Chat;
+import com.example.whatsapp.model.Group;
 import com.example.whatsapp.model.Message;
 import com.example.whatsapp.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,10 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
-import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -40,8 +37,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.whatsapp.R;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,7 +46,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +54,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatActivity extends AppCompatActivity {
 
     private User userClicked;
+    private Group groupClicked;
     private User currentUser;
     private CircleImageView circleImageView;
     private TextView textView;
@@ -85,7 +80,6 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        userClicked               = (User) getIntent().getSerializableExtra("UserClicked");
         circleImageView           = findViewById(R.id.circleImageChat);
         textView                  = findViewById(R.id.textViewChatName);
         editTextSend              = findViewById(R.id.editTextSend);
@@ -94,21 +88,44 @@ public class ChatActivity extends AppCompatActivity {
         currentUser               = CurrentUserFirebase.getUser();
         recyclerViewMessages      = findViewById(R.id.recyclerViewMessages);
         storageReference          = ConfigFirebase.getFirebaseStorage();
-        databaseReferenceMessages = ConfigFirebase.getDatabaseReference()
-                .child("Messages")
-                .child(Base64Custom.encodeBase64(currentUser.getPhoneNumber()))
-                .child(Base64Custom.encodeBase64(userClicked.getPhoneNumber()));
 
-        Uri url = Uri.parse(userClicked.getPhoto());
-        if(url == null) {
-            circleImageView.setImageResource(R.drawable.padrao);
+        if(!getIntent().getExtras().containsKey("UserClicked")) {
+            groupClicked = (Group) getIntent().getSerializableExtra("GroupClicked");
+            Uri url = Uri.parse(groupClicked.getPhoto());
+            if(url == null) {
+                circleImageView.setImageResource(R.drawable.padrao);
+            }
+            else {
+                Glide.with(ChatActivity.this)
+                        .load(url)
+                        .into(circleImageView);
+            }
+            textView.setText(groupClicked.getName());
+
+            databaseReferenceMessages = ConfigFirebase.getDatabaseReference()
+                    .child("Messages")
+                    .child(Base64Custom.encodeBase64(currentUser.getPhoneNumber()))
+                    .child(groupClicked.getId());
         }
-        else {
-            Glide.with(ChatActivity.this)
-                    .load(url)
-                    .into(circleImageView);
+        else{
+            userClicked = (User) getIntent().getSerializableExtra("UserClicked");
+            Uri url = Uri.parse(userClicked.getPhoto());
+            if(url == null) {
+                circleImageView.setImageResource(R.drawable.padrao);
+            }
+            else {
+                Glide.with(ChatActivity.this)
+                        .load(url)
+                        .into(circleImageView);
+            }
+            textView.setText(userClicked.getName());
+
+            databaseReferenceMessages = ConfigFirebase.getDatabaseReference()
+                    .child("Messages")
+                    .child(Base64Custom.encodeBase64(currentUser.getPhoneNumber()))
+                    .child(Base64Custom.encodeBase64(userClicked.getPhoneNumber()));
         }
-        textView.setText(userClicked.getName());
+
 
         floatingActionButtonSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,7 +163,13 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage() {
         String message   = editTextSend.getText().toString();
-        String idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
+        String idClicked;
+        if(userClicked != null) {
+            idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
+        }
+        else {
+            idClicked = groupClicked.getId();
+        }
         if(!message.isEmpty()) {
             Message msg = new Message();
             msg.setHour(DateUtil.currentDate());
@@ -240,7 +263,14 @@ public class ChatActivity extends AppCompatActivity {
                             Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
                             while(!uri.isComplete());
                             Uri url = uri.getResult();
-                            String idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
+                            String idClicked;
+                            if(userClicked != null) {
+                                idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
+
+                            }
+                            else {
+                                idClicked = groupClicked.getId();
+                            }
                             Message message = new Message();
                             message.setHour(DateUtil.currentDate());
                             message.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
@@ -248,6 +278,7 @@ public class ChatActivity extends AppCompatActivity {
                             message.save(idClicked);
                             message.arrive(idClicked);
                             saveChat(message);
+
                         }
                     });
                 }
@@ -262,9 +293,17 @@ public class ChatActivity extends AppCompatActivity {
         Chat chatSend = new Chat();
         chatSend.setDate(message.getHour());
         chatSend.setIdSend(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
-        chatSend.setIdArrived(Base64Custom.encodeBase64(userClicked.getPhoneNumber()));
-        chatSend.setLastMessage(message.getMessage());
-        chatSend.setUser(userClicked);
-        chatSend.save();
+        if(userClicked != null) {
+            chatSend.setIdArrived(Base64Custom.encodeBase64(userClicked.getPhoneNumber()));
+            chatSend.setLastMessage(message.getMessage());
+            chatSend.setUser(userClicked);
+            chatSend.save();
+        }
+        else{
+            chatSend.setIdArrived(groupClicked.getId());
+            chatSend.setLastMessage(message.getMessage());
+            chatSend.setGroup(groupClicked);
+            chatSend.save();
+        }
     }
 }
