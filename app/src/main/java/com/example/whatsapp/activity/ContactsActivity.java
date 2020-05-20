@@ -33,6 +33,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ContactsActivity extends AppCompatActivity {
@@ -40,6 +42,7 @@ public class ContactsActivity extends AppCompatActivity {
     private RecyclerView recyclerViewContacts;
     private ContactsAdapter contactsAdapter;
     private ArrayList<User> contactLists = new ArrayList<>();
+    private ArrayList<User> allList = new ArrayList<>();
     private DatabaseReference usersRef;
     private ValueEventListener valueEventListener;
     private ProgressBar progressBarContact;
@@ -102,11 +105,11 @@ public class ContactsActivity extends AppCompatActivity {
         materialSearchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() {
-
             }
 
             @Override
             public void onSearchViewClosed() {
+                updateListAgain();
                 searchContacts("");
             }
         });
@@ -167,9 +170,11 @@ public class ContactsActivity extends AppCompatActivity {
                     if (!user.getPhoneNumber().equals(currentUser.getPhoneNumber())) {
                         if (flag) {
                             contactLists.add(user);
+                            allList.add(user);
                         }
                     }
                 }
+                orderList();
                 contactsAdapter.notifyDataSetChanged();
                 progressBarContact.setVisibility(View.INVISIBLE);
             }
@@ -196,6 +201,7 @@ public class ContactsActivity extends AppCompatActivity {
             userGroup.setStatus("");
             userGroup.setPhoneNumber("");
             contactLists.add(userGroup);
+            allList.add(userGroup);
             takeContacts();
         }
     }
@@ -212,8 +218,8 @@ public class ContactsActivity extends AppCompatActivity {
     }
 
     public void searchContacts (String text) {
-        List<User> chatListContacts = new ArrayList<>();
-        for(User user: contactLists) {
+        ArrayList<User> chatListContacts = new ArrayList<>();
+        for(User user: allList) {
             String name   = user.getName().toLowerCase();
             String status = user.getStatus().toLowerCase();
             if(name.contains(text) || status.contains(text)) {
@@ -224,5 +230,29 @@ public class ContactsActivity extends AppCompatActivity {
         contactsAdapter = new ContactsAdapter(chatListContacts, getApplicationContext());
         recyclerViewContacts.setAdapter(contactsAdapter);
         contactsAdapter.notifyDataSetChanged();
+        contactLists = chatListContacts;
+    }
+
+    public void updateListAgain() {
+        contactLists = allList;
+        contactsAdapter = new ContactsAdapter(contactLists, getApplicationContext());
+        recyclerViewContacts.setAdapter(contactsAdapter);
+        contactsAdapter.notifyDataSetChanged();
+    }
+
+    void orderList() {
+        Collections.sort(contactLists.subList(1, contactLists.size()), new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        Collections.sort(allList.subList(1, allList.size()), new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
     }
 }

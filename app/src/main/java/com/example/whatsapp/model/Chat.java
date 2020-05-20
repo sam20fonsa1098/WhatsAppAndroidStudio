@@ -16,13 +16,45 @@ public class Chat {
         this.setIsGroup(false);
     }
 
-    public void save() {
+    public void save(User user) {
         DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
         DatabaseReference chatRef           = databaseReference.child("Chats");
         chatRef.child(this.getIdSend())
                .child(this.getIdArrived())
                .setValue(this);
+
+        if(!getIsGroup()) {
+            this.setUser(user);
+            chatRef.child(this.getIdArrived())
+                    .child(this.getIdSend())
+                    .setValue(this);
+        }
+
     }
+
+    public void save() {
+        DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
+        DatabaseReference chatRef           = databaseReference.child("Chats");
+        chatRef.child(this.getIdSend())
+                .child(this.getIdArrived())
+                .setValue(this);
+
+        if(!getIsGroup()) {
+            chatRef.child(this.getIdArrived())
+                    .child(this.getIdSend())
+                    .setValue(this);
+        }
+
+    }
+
+    public void save(String id) {
+        DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
+        DatabaseReference chatRef           = databaseReference.child("Chats");
+        chatRef.child(id)
+                .child(this.getIdArrived())
+                .setValue(this);
+    }
+
 
     public boolean getIsGroup() {
         return isGroup;

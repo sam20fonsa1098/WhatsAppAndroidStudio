@@ -20,6 +20,7 @@ public class User implements Serializable {
     public User() {
     }
 
+
     public void save() {
         DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
         DatabaseReference user              = databaseReference.child("Users").child(getUserId());

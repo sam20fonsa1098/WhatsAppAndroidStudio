@@ -57,7 +57,7 @@ public class ChatActivity extends AppCompatActivity {
     private Group groupClicked;
     private User currentUser;
     private CircleImageView circleImageView;
-    private TextView textView;
+    private TextView textView, textViewGroup;
     private EditText editTextSend;
     private FloatingActionButton floatingActionButtonSend;
     private ImageView imageViewSend;
@@ -82,6 +82,7 @@ public class ChatActivity extends AppCompatActivity {
 
         circleImageView           = findViewById(R.id.circleImageChat);
         textView                  = findViewById(R.id.textViewChatName);
+        textViewGroup             = findViewById(R.id.textViewChatMembersGroups);
         editTextSend              = findViewById(R.id.editTextSend);
         floatingActionButtonSend  = findViewById(R.id.floatingActionButtonSend);
         imageViewSend             = findViewById(R.id.imageViewSend);
@@ -91,33 +92,57 @@ public class ChatActivity extends AppCompatActivity {
 
         if(!getIntent().getExtras().containsKey("UserClicked")) {
             groupClicked = (Group) getIntent().getSerializableExtra("GroupClicked");
-            Uri url = Uri.parse(groupClicked.getPhoto());
-            if(url == null) {
-                circleImageView.setImageResource(R.drawable.padrao);
+            if( groupClicked.getPhoto() != null) {
+                Uri url = Uri.parse(groupClicked.getPhoto());
+                if(url == null) {
+                    circleImageView.setImageResource(R.drawable.padrao);
+                }
+                else {
+                    Glide.with(ChatActivity.this)
+                            .load(url)
+                            .into(circleImageView);
+                }
             }
             else {
-                Glide.with(ChatActivity.this)
-                        .load(url)
-                        .into(circleImageView);
+                circleImageView.setImageResource(R.drawable.padrao);
             }
+
             textView.setText(groupClicked.getName());
 
             databaseReferenceMessages = ConfigFirebase.getDatabaseReference()
                     .child("Messages")
                     .child(Base64Custom.encodeBase64(currentUser.getPhoneNumber()))
                     .child(groupClicked.getId());
+
+            String subtitle = "";
+            StringBuilder stringBuilder = new StringBuilder(subtitle);
+            for(User user : groupClicked.getMembers()) {
+                if(!user.getPhoneNumber().equals(currentUser.getPhoneNumber())) {
+                    stringBuilder.insert(stringBuilder.length(), user.getName().split(" ")[0] +", ");
+                }
+            }
+            stringBuilder.insert(stringBuilder.length(), "you");
+            textViewGroup.setText(stringBuilder.toString());
         }
         else{
+            textViewGroup.setVisibility(View.GONE);
             userClicked = (User) getIntent().getSerializableExtra("UserClicked");
-            Uri url = Uri.parse(userClicked.getPhoto());
-            if(url == null) {
+            if(userClicked.getPhoto() != null){
+                Uri url = Uri.parse(userClicked.getPhoto());
+                if(url == null) {
+                    circleImageView.setImageResource(R.drawable.padrao);
+                }
+                else {
+                    Glide.with(ChatActivity.this)
+                            .load(url)
+                            .into(circleImageView);
+                }
+            }
+            else{
                 circleImageView.setImageResource(R.drawable.padrao);
+
             }
-            else {
-                Glide.with(ChatActivity.this)
-                        .load(url)
-                        .into(circleImageView);
-            }
+
             textView.setText(userClicked.getName());
 
             databaseReferenceMessages = ConfigFirebase.getDatabaseReference()
@@ -137,7 +162,7 @@ public class ChatActivity extends AppCompatActivity {
         //Config adapter
         messagesAdapter = new MessagesAdapter(listMessages, getApplicationContext());
         //Config recyclerView
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         recyclerViewMessages.setLayoutManager(layoutManager);
         recyclerViewMessages.setHasFixedSize(true);
         recyclerViewMessages.setAdapter(messagesAdapter);
@@ -166,24 +191,41 @@ public class ChatActivity extends AppCompatActivity {
         String idClicked;
         if(userClicked != null) {
             idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
+            if(!message.isEmpty()) {
+                Message msg = new Message();
+                msg.setHour(DateUtil.currentDate());
+                msg.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
+                msg.setMessage(message);
+                msg.setName("");
+                msg.save(idClicked);
+                msg.arrive(idClicked);
+                editTextSend.setText("");
+                saveChat(msg);
+            }
+            else {
+                Toast.makeText(this, "Please write your message", Toast.LENGTH_SHORT).show();
+            }
         }
         else {
             idClicked = groupClicked.getId();
+            if(!message.isEmpty()) {
+                Message msg = new Message();
+                msg.setHour(DateUtil.currentDate());
+                msg.setMessage(message);
+                msg.setName(currentUser.getName());
+                editTextSend.setText("");
+                for(User user : groupClicked.getMembers()) {
+                    msg.setIdUser(Base64Custom.encodeBase64(user.getPhoneNumber()));
+                    msg.save(idClicked, Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
+                    saveChat(msg);
+                }
+            }
+            else {
+                Toast.makeText(this, "Please write your message", Toast.LENGTH_SHORT).show();
+            }
+
         }
-        if(!message.isEmpty()) {
-            Message msg = new Message();
-            msg.setHour(DateUtil.currentDate());
-            msg.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
-            msg.setMessage(message);
-            msg.save(idClicked);
-            msg.arrive(idClicked);
-            editTextSend.setText("");
-            //Saving a chat
-            saveChat(msg);
-        }
-        else {
-            Toast.makeText(this, "Please write your message", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     private void takeMessages() {
@@ -195,9 +237,11 @@ public class ChatActivity extends AppCompatActivity {
                         aux.add(data.getKey());
                         Message message = data.getValue(Message.class);
                         listMessages.add(message);
-                        messagesAdapter.notifyDataSetChanged();
                     }
                 }
+                messagesAdapter.notifyDataSetChanged();
+                recyclerViewMessages.scrollToPosition(listMessages.size() - 1);
+
             }
 
             @Override
@@ -264,20 +308,26 @@ public class ChatActivity extends AppCompatActivity {
                             while(!uri.isComplete());
                             Uri url = uri.getResult();
                             String idClicked;
+                            Message message = new Message();
+                            message.setHour(DateUtil.currentDate());
+                            message.setImage(url.toString());
                             if(userClicked != null) {
+                                message.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
                                 idClicked = Base64Custom.encodeBase64(userClicked.getPhoneNumber());
-
+                                message.setName("");
+                                message.save(idClicked);
+                                message.arrive(idClicked);
+                                saveChat(message);
                             }
                             else {
                                 idClicked = groupClicked.getId();
+                                message.setName(currentUser.getName());
+                                for(User user : groupClicked.getMembers()) {
+                                    message.setIdUser(Base64Custom.encodeBase64(user.getPhoneNumber()));
+                                    message.save(idClicked, Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
+                                    saveChat(message);
+                                }
                             }
-                            Message message = new Message();
-                            message.setHour(DateUtil.currentDate());
-                            message.setIdUser(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
-                            message.setImage(url.toString());
-                            message.save(idClicked);
-                            message.arrive(idClicked);
-                            saveChat(message);
 
                         }
                     });
@@ -292,18 +342,21 @@ public class ChatActivity extends AppCompatActivity {
     private void saveChat(Message message) {
         Chat chatSend = new Chat();
         chatSend.setDate(message.getHour());
+        chatSend.setLastMessage(message.getMessage());
         chatSend.setIdSend(Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
         if(userClicked != null) {
             chatSend.setIdArrived(Base64Custom.encodeBase64(userClicked.getPhoneNumber()));
-            chatSend.setLastMessage(message.getMessage());
             chatSend.setUser(userClicked);
-            chatSend.save();
+            chatSend.setIsGroup(false);
+            chatSend.save(currentUser);
         }
         else{
-            chatSend.setIdArrived(groupClicked.getId());
-            chatSend.setLastMessage(message.getMessage());
+            chatSend.setIsGroup(true);
             chatSend.setGroup(groupClicked);
-            chatSend.save();
+            chatSend.setIdArrived(groupClicked.getId());
+            for(User user: groupClicked.getMembers()) {
+                chatSend.save(Base64Custom.encodeBase64(user.getPhoneNumber()));
+            }
         }
     }
 }

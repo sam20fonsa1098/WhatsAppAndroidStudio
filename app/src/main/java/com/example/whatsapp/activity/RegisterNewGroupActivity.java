@@ -100,20 +100,27 @@ public class RegisterNewGroupActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                group.setName(editText.getText().toString());
-                if(!userList.contains(CurrentUserFirebase.getUser())) {
-                    userList.add(CurrentUserFirebase.getUser());
+                if (canCreate) {
+                    if (!editText.getText().toString().isEmpty()) {
+                        group.setName(editText.getText().toString());
+                        if (!userList.contains(CurrentUserFirebase.getUser())) {
+                            userList.add(CurrentUserFirebase.getUser());
+                        }
+                        group.setMembers(userList);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        group.save();
+                        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                        intent.putExtra("GroupClicked", group);
+                        startActivity(intent);
+                        finish();
+                    }
+                    else {
+                        Toast.makeText(RegisterNewGroupActivity.this, "Please fill in the group name field", Toast.LENGTH_SHORT).show();
+                    }
                 }
-                group.setMembers(userList);
-                while (!canCreate) {
-                    progressBar.setVisibility(View.VISIBLE);
+                else {
+                    Toast.makeText(RegisterNewGroupActivity.this, "Please wait the upload and click again", Toast.LENGTH_SHORT).show();
                 }
-                progressBar.setVisibility(View.INVISIBLE);
-                group.save();
-                Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                intent.putExtra("GroupClicked", group);
-                startActivity(intent);
-                finish();
             }
         });
 

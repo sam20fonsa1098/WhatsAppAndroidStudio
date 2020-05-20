@@ -24,14 +24,30 @@
             android:layout_marginRight="16dp"
             android:src="@drawable/padrao"></de.hdodenhof.circleimageview.CircleImageView>
 
-        <TextView
-            android:id="@+id/textViewChatName"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"></TextView>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewChatName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/textViewChatMembersGroups"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="14sp"/>
+
+        </LinearLayout>
+
 
     </androidx.appcompat.widget.Toolbar>
 

@@ -32,6 +32,8 @@ import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class NewGroupActivity extends AppCompatActivity {
@@ -136,6 +138,7 @@ public class NewGroupActivity extends AppCompatActivity {
                             divider.setVisibility(View.VISIBLE);
                             toolbar.setSubtitle(userSelected.size() + " of " + allContacts + " selected");
                         }
+                        orderList();
                     }
 
                     @Override
@@ -210,6 +213,7 @@ public class NewGroupActivity extends AppCompatActivity {
                         }
                     }
                 }
+                orderList();
                 allContacts = userList.size();
                 contactsAdapter.notifyDataSetChanged();
             }
@@ -248,13 +252,16 @@ public class NewGroupActivity extends AppCompatActivity {
 
     public void searchChats (String text) {
         List<User> userListSearch = new ArrayList<>();
-        for(User user: userList) {
-            String name   = user.getName().toLowerCase();
-            String status = user.getStatus();
-            if(name.contains(text) || status.contains(text)) {
-                userListSearch.add(user);
+        for(User user: allUsers) {
+            if(!userSelected.contains(user)) {
+                String name   = user.getName().toLowerCase();
+                String status = user.getStatus();
+                if(name.contains(text) || status.contains(text)) {
+                    userListSearch.add(user);
+                }
             }
         }
+
         contactsAdapter = new ContactsAdapter(userListSearch, getApplicationContext());
         recyclerViewGroupContacts.setAdapter(contactsAdapter);
         contactsAdapter.notifyDataSetChanged();
@@ -278,5 +285,21 @@ public class NewGroupActivity extends AppCompatActivity {
         Intent intent = new Intent(NewGroupActivity.this, RegisterNewGroupActivity.class);
         intent.putExtra("members", (Serializable) userSelected);
         startActivity(intent);
+    }
+
+    void orderList() {
+        Collections.sort(userList, new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        Collections.sort(allUsers, new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
     }
 }

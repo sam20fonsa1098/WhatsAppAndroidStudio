@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSearchViewClosed() {
                 ChatsFragment fragment = (ChatsFragment) adapter.getPage(1);
+                fragment.updateListAgain();
                 fragment.searchChats("");
             }
         });

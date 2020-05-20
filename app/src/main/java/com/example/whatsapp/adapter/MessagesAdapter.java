@@ -25,6 +25,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     private Context context;
     private static final int TYPE_SEND    = 0;
     private static final int TYPE_ARRIVED = 1;
+    private boolean send = false;
 
     public MessagesAdapter(List<Message> list, Context c) {
         this.listMessages = list;
@@ -59,6 +60,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
             holder.message.setText(message.getMessage());
             holder.image.setVisibility(View.GONE);
         }
+        if(!message.getName().equals("")) {
+            if(send) {
+                holder.name.setVisibility(View.GONE);
+            }
+            else{
+                holder.name.setText(message.getName());
+            }
+        }
+        else{
+            holder.name.setVisibility(View.GONE);
+        }
 
 
     }
@@ -73,14 +85,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         Message message  = listMessages.get(position);
         String currentId = CurrentUserFirebase.getIdCurrentUser();
         if(message.getIdUser().equals(currentId)) {
+            send = true;
             return TYPE_SEND;
         }
+        send = false;
         return TYPE_ARRIVED;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView message, date;
+        TextView message, date, name;
         ImageView image;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -88,6 +102,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
             message = itemView.findViewById(R.id.textViewMessageText);
             image   = itemView.findViewById(R.id.imageViewMessagePhoto);
             date    = itemView.findViewById(R.id.textViewMessageTextHour);
+            name    = itemView.findViewById(R.id.textViewMessageTextName);
         }
     }
 

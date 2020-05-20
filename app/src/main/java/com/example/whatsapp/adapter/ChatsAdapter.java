@@ -16,7 +16,6 @@ import com.example.whatsapp.helper.DateUtil;
 import com.example.whatsapp.model.Chat;
 import com.example.whatsapp.model.Group;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -52,20 +51,11 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.MyViewHolder
             else{
                 holder.circleImageView.setImageResource(R.drawable.padrao);
             }
-            holder.lastMessage.setText("");
-            holder.date.setText("");
-            holder.lastMessage.setCompoundDrawables(null, null, null, null);
+            holder.date.setText(setData(chat.getDate()));
 
         }
         else{
             holder.name.setText(chat.getUser().getName());
-            if(chat.getLastMessage() == null) {
-                holder.lastMessage.setText("Photo");
-            }
-            else{
-                holder.lastMessage.setText(chat.getLastMessage());
-                holder.lastMessage.setCompoundDrawables(null, null, null, null);
-            }
             if(chat.getUser().getPhoto() != null) {
                 Uri uri = Uri.parse(chat.getUser().getPhoto());
                 Glide.with(context).load(uri).into(holder.circleImageView);
@@ -74,6 +64,14 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.MyViewHolder
                 holder.circleImageView.setImageResource(R.drawable.padrao);
             }
             holder.date.setText(setData(chat.getDate()));
+        }
+
+        if(chat.getLastMessage() == null) {
+            holder.lastMessage.setText("Photo");
+        }
+        else{
+            holder.lastMessage.setText(chat.getLastMessage());
+            holder.lastMessage.setCompoundDrawables(null, null, null, null);
         }
     }
 

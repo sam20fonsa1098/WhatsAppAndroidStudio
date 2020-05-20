@@ -2,13 +2,13 @@ package com.example.whatsapp.model;
 
 import com.example.whatsapp.config.ConfigFirebase;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 
 public class Message {
     private String idUser;
     private String message;
     private String image;
     private String hour;
+    private String name;
 
     public Message() {
     }
@@ -23,6 +23,16 @@ public class Message {
     }
 
 
+    public void save(String userDestId, String idSend) {
+        DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
+        DatabaseReference message           = databaseReference
+                .child("Messages")
+                .child(this.idUser)
+                .child(userDestId);
+        this.setIdUser(idSend);
+        message.push().setValue(this);
+    }
+
     public void arrive(String userArrivId) {
         DatabaseReference databaseReference = ConfigFirebase.getDatabaseReference();
         DatabaseReference message           = databaseReference
@@ -30,6 +40,14 @@ public class Message {
                 .child(userArrivId)
                 .child(this.idUser);
         message.push().setValue(this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getHour() {

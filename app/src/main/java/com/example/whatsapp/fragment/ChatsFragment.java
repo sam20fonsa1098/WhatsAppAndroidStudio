@@ -38,6 +38,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.crypto.AEADBadTagException;
@@ -51,6 +53,7 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
     private RecyclerView recyclerView;
     private ChatsAdapter chatsAdapter;
     private List<Chat> chatList = new ArrayList<>();
+    private List<Chat> allList = new ArrayList<>();
     private DatabaseReference chatsRef;
     private FirebaseUser firebaseUser;
     private ValueEventListener valueEventListener;
@@ -150,9 +153,11 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
                         aux.add(data.getKey());
                         Chat chat = data.getValue(Chat.class);
                         chatList.add(chat);
-                        chatsAdapter.notifyDataSetChanged();
+                        allList.add(chat);
                     }
                 }
+                orderList();
+                chatsAdapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.INVISIBLE);
 
             }
@@ -184,8 +189,14 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
 
     public void searchChats (String text) {
         List<Chat> chatListSearch = new ArrayList<>();
-        for(Chat chat: chatList) {
-            String name        = chat.getUser().getName().toLowerCase();
+        String name;
+        for(Chat chat: allList) {
+            if(!chat.getIsGroup()) {
+                name = chat.getUser().getName().toLowerCase();
+            }
+            else{
+                name = chat.getGroup().getName();
+            }
             String lastMessage = chat.getLastMessage();
             if(lastMessage == null) {
                 if(name.contains(text)) {
@@ -197,10 +208,33 @@ public class ChatsFragment extends Fragment implements View.OnClickListener, Vie
                     chatListSearch.add(chat);
                 }
             }
-
         }
         chatsAdapter = new ChatsAdapter(chatListSearch, getActivity());
         recyclerView.setAdapter(chatsAdapter);
         chatsAdapter.notifyDataSetChanged();
+        chatList = chatListSearch;
+    }
+
+    public void updateListAgain() {
+        chatList = allList;
+        chatsAdapter = new ChatsAdapter(chatList, getActivity());
+        recyclerView.setAdapter(chatsAdapter);
+        chatsAdapter.notifyDataSetChanged();
+    }
+
+    void orderList() {
+        Collections.sort(allList, new Comparator<Chat>() {
+            @Override
+            public int compare(Chat o1, Chat o2) {
+                return o2.getDate().compareTo(o1.getDate());
+            }
+        });
+
+        Collections.sort(chatList, new Comparator<Chat>() {
+            @Override
+            public int compare(Chat o1, Chat o2) {
+                return o2.getDate().compareTo(o1.getDate());
+            }
+        });
     }
 }
