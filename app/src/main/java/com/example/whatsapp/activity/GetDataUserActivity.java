@@ -13,6 +13,9 @@ import com.example.whatsapp.R;
 import com.example.whatsapp.helper.Base64Custom;
 import com.example.whatsapp.helper.CurrentUserFirebase;
 import com.example.whatsapp.model.User;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class GetDataUserActivity extends AppCompatActivity {
 
@@ -20,6 +23,7 @@ public class GetDataUserActivity extends AppCompatActivity {
     private String mCountryCode;
     private EditText mUsername;
     private Button mConfirm;
+    private String mToken;
 
 
     @Override
@@ -45,6 +49,7 @@ public class GetDataUserActivity extends AppCompatActivity {
                         user.setPhoneNumber(mCountryCode + mPhoneNumber);
                         user.setUserId(id);
                         user.setStatus(getString(R.string.defaulStatus));
+                        user.setToken(mToken);
                         user.save();
                         CurrentUserFirebase.updateName(user.getName());
                         Toast.makeText(GetDataUserActivity.this, "User saved successfully", Toast.LENGTH_SHORT).show();
@@ -58,6 +63,21 @@ public class GetDataUserActivity extends AppCompatActivity {
                     Toast.makeText(GetDataUserActivity.this, "Please fill in your Username", Toast.LENGTH_SHORT).show();
                 }
 
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        takeToken();
+    }
+
+    public void takeToken() {
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                mToken = instanceIdResult.getToken();
             }
         });
     }

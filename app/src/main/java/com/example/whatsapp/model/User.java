@@ -16,6 +16,7 @@ public class User implements Serializable {
     private String phoneNumber;
     private String status;
     private String photo;
+    private String token;
 
     public User() {
     }
@@ -43,6 +44,14 @@ public class User implements Serializable {
         userMap.put("photo", getPhoto());
         userMap.put("status", getStatus());
         return userMap;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getPhoto() {

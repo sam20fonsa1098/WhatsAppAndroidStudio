@@ -7,13 +7,16 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.example.whatsapp.adapter.MessagesAdapter;
+import com.example.whatsapp.api.NotificationService;
 import com.example.whatsapp.config.ConfigFirebase;
 import com.example.whatsapp.helper.Base64Custom;
 import com.example.whatsapp.helper.CurrentUserFirebase;
 import com.example.whatsapp.helper.DateUtil;
 import com.example.whatsapp.model.Chat;
+import com.example.whatsapp.model.DataNotification;
 import com.example.whatsapp.model.Group;
 import com.example.whatsapp.model.Message;
+import com.example.whatsapp.model.Notification;
 import com.example.whatsapp.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,6 +44,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -50,6 +55,11 @@ import java.util.List;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -69,6 +79,8 @@ public class ChatActivity extends AppCompatActivity {
     private static final int SELECTION_CAMERA = 100;
     private StorageReference storageReference;
     private List<String> aux = new ArrayList<>();
+    private Retrofit retrofit;
+    private String baseUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +91,12 @@ public class ChatActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        baseUrl = "https://fcm.googleapis.com/fcm/";
+        retrofit = new Retrofit.Builder()
+                .baseUrl( baseUrl )
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
         circleImageView           = findViewById(R.id.circleImageChat);
         textView                  = findViewById(R.id.textViewChatName);
@@ -199,6 +217,7 @@ public class ChatActivity extends AppCompatActivity {
                 msg.setName("");
                 msg.save(idClicked);
                 msg.arrive(idClicked);
+                sendNotification();
                 editTextSend.setText("");
                 saveChat(msg);
             }
@@ -213,6 +232,7 @@ public class ChatActivity extends AppCompatActivity {
                 msg.setHour(DateUtil.currentDate());
                 msg.setMessage(message);
                 msg.setName(currentUser.getName());
+                sendNotification();
                 editTextSend.setText("");
                 for(User user : groupClicked.getMembers()) {
                     msg.setIdUser(Base64Custom.encodeBase64(user.getPhoneNumber()));
@@ -256,6 +276,60 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         takeMessages();
+    }
+
+    private void sendNotification() {
+        Notification notification;
+        if (userClicked != null) {
+            if (!editTextSend.getText().toString().isEmpty()) {
+                notification  = new Notification(currentUser.getName(), editTextSend.getText().toString());
+            } else {
+                notification = new Notification(currentUser.getName(), "Photo");
+            }
+            //IF i need to send a topic
+//            String to = "/topics/nameTopic";
+            String to = userClicked.getToken();
+            DataNotification dataNotification = new DataNotification(to, notification);
+            NotificationService service = retrofit.create(NotificationService.class);
+            Call<DataNotification> call = service.saveNotification(dataNotification);
+            call.enqueue(new Callback<DataNotification>() {
+                @Override
+                public void onResponse(Call<DataNotification> call, Response<DataNotification> response) {
+
+                }
+
+                @Override
+                public void onFailure(Call<DataNotification> call, Throwable t) {
+
+                }
+            });
+        } else {
+            if (!editTextSend.getText().toString().isEmpty()) {
+                notification  = new Notification(groupClicked.getName(), editTextSend.getText().toString());
+            } else {
+                notification = new Notification(groupClicked.getName(), "Photo");
+            }
+            for(User user : groupClicked.getMembers()) {
+                if (!user.getPhoneNumber().equals(currentUser.getPhoneNumber())) {
+                    String to = user.getToken();
+                    DataNotification dataNotification = new DataNotification(to, notification);
+                    NotificationService service = retrofit.create(NotificationService.class);
+                    Call<DataNotification> call = service.saveNotification(dataNotification);
+                    call.enqueue(new Callback<DataNotification>() {
+                        @Override
+                        public void onResponse(Call<DataNotification> call, Response<DataNotification> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<DataNotification> call, Throwable t) {
+
+                        }
+                    });
+                }
+            }
+        }
+
     }
 
     @Override
@@ -318,6 +392,7 @@ public class ChatActivity extends AppCompatActivity {
                                 message.save(idClicked);
                                 message.arrive(idClicked);
                                 saveChat(message);
+                                sendNotification();
                             }
                             else {
                                 idClicked = groupClicked.getId();
@@ -326,6 +401,7 @@ public class ChatActivity extends AppCompatActivity {
                                     message.setIdUser(Base64Custom.encodeBase64(user.getPhoneNumber()));
                                     message.save(idClicked, Base64Custom.encodeBase64(currentUser.getPhoneNumber()));
                                     saveChat(message);
+                                    sendNotification();
                                 }
                             }
 
